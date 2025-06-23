@@ -1,63 +1,4 @@
 #MDD patients reanalysis
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>part1 
-(R4.3.1) xuzhzh@xdzpefect:/mnt/disk12_part2/zls_project/publicData_SPD$ cat reanalysis.r
-library("Seurat")
-merged<-CreateSeuratObject(counts = Read10X(data.dir = "GSE213982"),project = "MDD")
-write.csv(merged@meta.data,"merged.metadata.csv")
-saveRDS(merged,"merged.rds")
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>part2
-(R4.3.1) xuzhzh@xdzpefect:/mnt/disk12_part2/zls_project/publicData_SPD$ cat reanalysis.part2.r
-
-library(Seurat)
-merged<-readRDS("merged.rds")
-###
-bm280k.list <- SplitObject(merged, split.by = "orig.ident")
-bm280k.list <- lapply(X = bm280k.list, FUN = function(x) {
-    x <- NormalizeData(x, verbose = FALSE)
-    x <- FindVariableFeatures(x, verbose = FALSE)
-})
-
-features <- SelectIntegrationFeatures(object.list = bm280k.list)
-bm280k.list <- lapply(X = bm280k.list, FUN = function(x) {
-    x <- ScaleData(x, features = features, verbose = FALSE)
-    x <- RunPCA(x, features = features, verbose = FALSE)
-})
-set.seed(1)
-anchors <- FindIntegrationAnchors(object.list = bm280k.list, reference = c(1, 2), reduction = "rpca",
-    dims = 1:50)
-bm280k.integrated <- IntegrateData(anchorset = anchors, dims = 1:50)
-
-saveRDS(bm280k.integrated,file = "bm280k.integrated1.rds")
-
-bm280k.integrated <- ScaleData(bm280k.integrated, verbose = FALSE)
-bm280k.integrated <- RunPCA(bm280k.integrated, verbose = FALSE)
-bm280k.integrated <- RunUMAP(bm280k.integrated, dims = 1:50)
-pdf("deBatch.DimPlot.umap1.rpca.pdf")
-DimPlot(bm280k.integrated, group.by = "orig.ident")
-dev.off()
-saveRDS(bm280k.integrated,file = "bm280k.integrated2.rds")
-
-ifnb.combined <-bm280k.integrated
-
-ifnb.combined <- FindNeighbors(ifnb.combined, reduction = "pca", dims = 1:30)
-ifnb.combined <- FindClusters(ifnb.combined,resolution = 0.1)
-
-ifnb.combined<-RunUMAP(ifnb.combined, dims = 1:20) 
-
-pdf("deBatch.DimPlot.umap2.rpca.pdf")
-DimPlot(ifnb.combined,reduction = "umap", label = T, label.size = 5)
-dev.off()
-
-ifnb.combined<-RunTSNE(ifnb.combined, dims = 1:20) 
-
-pdf("deBatch.DimPlot.tsne2.rpca.pdf")
-DimPlot(ifnb.combined, reduction = "tsne", label = T, label.size = 5)
-dev.off()
-
-write.csv(ifnb.combined@meta.data,file="deBatch.metadata.merged.resolution0.1.rpca.csv")
-saveRDS(ifnb.combined,file = "deBatch.merged.resolution0.1.rpca.rds")
-
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>part3
 cd /mnt/disk12_part2/zls_project/publicData_SPD/resolution0.1
 #>>>>>>>>>>>>>>>>>>>>>>cell annotaion<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -200,7 +141,7 @@ table(meta2[grepl("WT",meta2$sampleType2),]$orig.ident)
 
 table(meta$sampleType2)
 
-#only F9,F14£¬F15 and Ctrl
+#only F9,F14Â£Â¬F15 and Ctrl
 meta$subSample<-"no"
 meta[meta$orig.ident=="F9",]$subSample<-"yes"
 meta[meta$orig.ident=="F14",]$subSample<-"yes"
