@@ -1,0 +1,204 @@
+---
+title: "guide RNA assignment"
+output: html_document
+---
+This script was original from Santinha, A. J. et al. Transcriptional linkage analysis with in vivo AAV-Perturb-seq. Nature (2023), and was modified according to current dataset.
+
+**Libraries**
+```{r message=FALSE, warning=FALSE}
+library(data.table)
+library(Biostrings)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggridges)
+```
+
+
+*Step 1: Load data and preprocess guide RNA sequences**
+```{r}
+seuset <- read.table("sPD10.meta.data.txt", sep = '\t', header = T)
+seuset$cellBarcode <- paste0(seuset$orig.ident,"_", gsub("\\-.*","",seuset$cellname))
+head(seuset)
+
+sg <- read.table("SPD_sg1.sg2.txt", sep = '\t', header= T)
+for(i in 1:nrow(sg)){
+  sg[i,"sg1_rev"] <- as.character(reverseComplement(DNAString(sg$sg1_fwd[i]))) 
+  sg[i,"sg2_rev"] <- as.character(reverseComplement(DNAString(sg$sg2_fwd[i]))) 
+}
+head(seuset)
+```
+
+
+**Step 2: Filter PCR contaminants**
+```{r}
+## When working with different NGS (Next-Generation Sequencing) libraries, it's important to adjust cutoffs (e.g., quality score thresholds, read length filters, or alignment scores) based on the specific characteristics of each dataset. Here we only shows one demo NGS data.
+
+# Process data for a single sample (i = 1)
+# Note: If you plan to process multiple samples, consider looping over i
+i=10
+bar <- seuset[seuset$orig.ident== paste0("SPD_",i),]
+bar$V1 = gsub( "\\_.*","",bar$cellname)
+
+# Load guide RNA annotation data
+# Note:the files were pre-annotated with target names
+sg1 <- readRDS(paste0("SPD",i,".annotated.barcode_sg1.rds"))
+sg2 <- readRDS(paste0("SPD",i,".annotated.barcode_sg2.rds"))
+# Filter guide RNAs to keep only those that presents in final snRNA dataset
+sg1_fill <- sg1[sg1$cell %in% bar$V1,]
+sg2_fill <- sg2[sg2$cell %in% bar$V1,]
+head(sg1_fill)
+head(sg2_fill)
+  
+```
+
+```{r}
+# Process sg2
+guides_filter <- sg2_fill
+
+# Calculate coverage (the number of reads divided by the number of UMIs)
+guides_filter$coverage <- guides_filter$read_count / guides_filter$umi_count
+ggplot(guides_filter, aes(x = log2(coverage))) +
+  geom_histogram(aes(y=..density..), binwidth = 0.3, alpha = 1) +
+  geom_vline(xintercept = 4.5, colour = "red")+
+    theme_bw() 
+
+# Create column with TRUE or FALSE passing threshold
+guides_filter$coverage_threshold <- log2(guides_filter$coverage) > 4.5  
+
+# Keep only gRNA above coverage
+guides_final <- guides_filter[guides_filter$coverage_threshold == TRUE,]
+
+sg2_final <- guides_final
+```
+
+```{r}
+# Process sg1
+guides_filter <- sg1_fill
+
+# Calculate coverage (the number of reads divided by the number of UMIs)
+guides_filter$coverage <- guides_filter$read_count / guides_filter$umi_count
+ggplot(guides_filter, aes(x = log2(coverage))) +
+  geom_histogram(aes(y=..density..), binwidth = 0.3, alpha = 1) +
+  geom_vline(xintercept = 2.7, colour = "red")+
+  theme_bw() 
+
+# Create column with TRUE or FALSE passing threshold
+guides_filter$coverage_threshold <- log2(guides_filter$coverage) > 2.7
+
+# Keep only gRNA above coverage
+guides_final <- guides_filter[guides_filter$coverage_threshold == TRUE,]
+
+
+sg1_final <- guides_final
+
+sg1_final$cellBarcode <- paste0("SPD_",i,"_",gsub("\\-.*","",sg1_final$cell))
+sg2_final$cellBarcode <- paste0("SPD_",i,"_",gsub("\\-.*","",sg2_final$cell))
+
+
+
+```
+
+
+**Counts distribution for guides1 an guides2 across targets**
+```{r, fig.width=8, fig.height=10}
+sg1_final$from <- "SG1"
+sg2_final$from <- "SG2"
+toplot <- rbind(sg1_final, sg2_final)
+toplot<- toplot[!is.na(toplot$cell),]
+gene <- unique(toplot$id)
+gene <- gene[order(gene)]
+gene <- c(gene[!grepl("ctrl",gene)], gene[grepl("ctrl",gene)])
+gene <- gene[!is.na(gene)]
+toplot$id <- factor(toplot$id, levels= gene) 
+
+ggplot(toplot, aes(x = log2(umi_count), y=from, fill= from)) +
+  geom_density_ridges(alpha = 0.5, scale = 1.5,bandwidth = 0.2) +  # scale 控制重叠程度
+  xlim(0,8)+
+  geom_vline(xintercept = log2(1.5), colour = "red") +
+  facet_wrap(~ id, ncol = 8)+
+  theme_ridges()+
+  theme_bw() 
+
+
+```
+
+**Step 3: Remove ambient RNA and assign by sg2**
+```{r}
+# Load filtered guide RNA data
+## Here you can gather all pre-filtered data (from different NGS librray),and perform the next step
+## Here we only shows one demo NGS data.
+
+umi <- 1    # Minimum UMI count
+pct <- 0.2  # Minimum proportion threshold
+
+guides_final <- sg2_final
+
+# Calculate proportion
+guides_final <- guides_final %>%
+  group_by(cellBarcode) %>%
+  dplyr::mutate(proportion = umi_count / sum(umi_count)) %>%
+  dplyr::ungroup()
+  
+tmp <- guides_final[guides_final$umi_count > umi,]
+tmp <- tmp[tmp$proportion > pct,]
+
+# Counts MOI
+tmp <- tmp %>% group_by(cellBarcode) %>%
+  mutate(moi = length(umi_count))
+
+tmp <- tmp %>%
+  group_by(cellBarcode) %>%
+  filter(umi_count == max(umi_count)) %>%
+  dplyr::slice(1)
+
+
+# Join to metadata
+tmp <- merge(tmp, seuset, by = "cellBarcode", all.y = T)
+tmp <- tmp %>% replace_na(list(moi = 0))
+ggplot(tmp, aes(x = moi, y = after_stat(count)/sum(after_stat(count)))) +
+  geom_bar()+
+  theme_bw() 
+
+tmp_sg2 <-tmp
+```
+  
+  
+```{r}
+# Process sg1 data
+library(dplyr)
+# Calculate proportion
+guides_final <- sg1_final
+
+# Apply UMI filter
+tmp <- guides_final[guides_final$umi_count > umi,]
+tmp <- tmp[!is.na(tmp$barcode),]
+
+sg1_ref <- tmp
+```
+
+**Step 4: Identify confident MOI=1 cells and assign guides**
+```{r}
+# Filter for cells with exactly one sg2 guide
+MOI <- tmp_sg2[tmp_sg2$moi==1,]
+MOI$link <- paste0(MOI$cellBarcode, ":", MOI$id)
+# Remove cells with multiple sg1 assignments
+sg1_ref$link <- paste0(sg1_ref$cellBarcode,":", sg1_ref$id)
+
+MOI_ <- merge( MOI, sg1_ref, by="link", all.x =T)
+MOI_ <- MOI_[!is.na(MOI_$id.y),]
+
+data_ <- MOI_[,-c(1,3,12:20,23,27,31)]
+colnames(data_)<- c("cellBarcode","sg2_rev","sg2_read_count","sg2_umi_count","geneID","sg2_coverage","sg2_coverage_threshold","sg2_proportion","sg2_moi","celltype","celltype2",
+                    "sg1_rev","sg1_read_count","sg1_umi_count","sg1_coverage","sg1_coverage_threshold","sg1_proportion")
+dim(data_)
+
+```
+
+
+```{r}
+sessionInfo()
+```
+
+
+
