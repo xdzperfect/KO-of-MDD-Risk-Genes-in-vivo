@@ -1,0 +1,110 @@
+---
+title: "Similarity analysis of perturbation and hierarchical clustering "
+output: html_document
+---
+
+**Libraries**
+```{r message=FALSE, warning=FALSE}
+library(readxl)   
+library(lsa)     
+library(data.table) 
+library(pheatmap)   
+library(ggplot2)  
+library(MASS)   
+library(mclust) 
+```
+
+
+*Step 1: Load edgeR output files**
+```{r}
+path <- "E:/ion/linux/perturb seq/SPD_zls/NG_review/code/perturbation_clustering/deg_demo"
+fileNames <- dir(path, pattern = ".edgeR.txt") 
+filePath <- sapply(fileNames, function(x){ 
+  paste(path,x,sep='/')}) 
+
+res1<- lapply(filePath, function(x){
+  read.table(x, header = T)})
+```
+
+
+**Prepare log2 Fold change matrix**
+```{r}
+# Extract gene names with perturbed neuron number  >= 50
+gene <- gsub("DEGs.","", gsub(".edgeR.txt","",names(res1)))
+deg <- list()
+# Filter DEGs with PValue < 0.01 for each gene
+for(i in gene){
+  tmp <- res1[[paste0("DEGs.",i,".edgeR.txt")]]
+  tmp$from <- i
+  deg[[i]]<- tmp[tmp$PValue <0.01,]
+}
+
+deg <- rbindlist(deg)
+# Create a matrix of logFC values with genes as rows and perturbation target as columns
+to_ <- dcast(deg, gene~from, value.var = "logFC")
+# Replace NA values with 0
+to_[is.na(to_)] <- 0
+
+# Calculate cosine similarity matrix for the DEG matrix 
+to_c <-cosine(as.matrix(to_[,-1]))
+  
+```
+
+**Plot clusters**
+```{r}
+
+
+dist_matrix <- as.dist(1 - to_c)
+# Hierarchical clustering
+hc <- hclust(dist_matrix, method = "complete")
+plot(hc, main = "Hierarchical Clustering (Complete Linkage)")
+rect.hclust(hc, k = 20, border = "red")  
+
+p <- pheatmap::pheatmap(to_c,clustering_distance_rows = dist_matrix,clustering_distance_cols = dist_matrix,
+                        cutree_cols = 20, cutree_rows = 20,border_color = "transparent",
+                        color = c(colorRampPalette(c("navy", "white"))(1000),
+                                  colorRampPalette(c("white", "#F5D6DB"))(1000),
+                                  colorRampPalette(c("#F5D6DB", "#E2485F"))(1000),
+                                  colorRampPalette(c("#E2485F", "#D20103"))(1000)),
+                        breaks = c(
+                          seq(-0.2, 0, length.out = 1000),
+                          seq(0.01,0.2, length.out = 1000),
+                          seq(0.21,0.4, length.out = 1000),
+                          seq(0.41,0.6, length.out = 1000)))
+```
+
+```{r}
+to_c <- as.data.frame(to_c)
+# Extract row clusters from the heatmap's row dendrogram
+row_cluster <- cutree(p$tree_row, k=20)
+# Reorder the data frame based on the heatmap's row order and add cluster assignments
+newOrder <- to_c[p$tree_row$order,]
+newOrder[,ncol(newOrder)+1]=row_cluster[match(rownames(newOrder), names(row_cluster))]
+colnames(newOrder)[ncol(newOrder)]="Cluster"
+
+# Extract gene names for specific clusters
+c1 <- rownames(newOrder[newOrder$Cluster == "11",])
+c2 <- rownames(newOrder[newOrder$Cluster == "7",])
+c3 <- rownames(newOrder[newOrder$Cluster == "2",])
+c4 <- rownames(newOrder[newOrder$Cluster == "4",])
+c5 <- rownames(newOrder[newOrder$Cluster == "1",])
+c1
+c2
+c3
+c4
+c5
+#write.table(as.data.frame(c2), "cluster3.gene.txt", quote = F, row.names = F, col.names = F)
+#write.table(as.data.frame(c5), "cluster2.gene.txt", quote = F, row.names = F, col.names = F)
+#write.table(as.data.frame(c6), "cluster1.gene.txt", quote = F, row.names = F, col.names = F)
+#write.table(as.data.frame(c1), "cluster4.gene.txt", quote = F, row.names = F, col.names = F)
+
+```
+
+
+
+```{r}
+sessionInfo()
+```
+
+
+

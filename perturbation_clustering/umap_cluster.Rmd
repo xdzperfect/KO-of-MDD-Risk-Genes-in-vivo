@@ -1,0 +1,164 @@
+---
+title: "Dimensional reduction of perturbation and clustering"
+output: html_document
+---
+
+**Libraries**
+```{r message=FALSE, warning=FALSE}
+library(readxl)   
+library(lsa)     
+library(data.table) 
+library(pheatmap)   
+library(ggplot2)  
+library(MASS)   
+library(mclust) 
+library(ggrepel)
+library(dbscan)
+```
+
+
+*Step 1: Load edgeR output files**
+```{r}
+path <- "deg_demo"
+fileNames <- dir(path, pattern = ".edgeR.txt") 
+filePath <- sapply(fileNames, function(x){ 
+  paste(path,x,sep='/')}) 
+
+res1<- lapply(filePath, function(x){
+  read.table(x, header = T)})
+```
+
+
+**Prepare log2 Fold change matrix**
+```{r}
+# Extract gene names with perturbed neuron number  >= 50
+gene <- gsub("DEGs.","", gsub(".edgeR.txt","",names(res1)))
+deg <- list()
+# Filter DEGs with PValue < 0.01 for each gene
+for(i in gene){
+  tmp <- res1[[paste0("DEGs.",i,".edgeR.txt")]]
+  tmp$from <- i
+  deg[[i]]<- tmp[tmp$PValue <0.01,]
+}
+
+deg <- rbindlist(deg)
+# Create a matrix of logFC values with genes as rows and perturbation target as columns
+to_ <- dcast(deg, gene~from, value.var = "logFC")
+# Replace NA values with 0
+to_[is.na(to_)] <- 0
+
+# Calculate cosine similarity matrix for the DEG matrix 
+to_ <-cosine(as.matrix(to_[,-1]))
+  
+```
+
+**Threshold Determination for Outlier Filtering**
+```{r}
+# Create a data frame to store maximum similarity values for each gene
+max <- data.frame(gene = colnames(to_), Max = 0)
+
+# Calculate the maximum similarity (excluding self-similarity) for each gene
+for(i in max$gene){
+  a <- to_[i,]
+  a <- a[which(names(a) !=i)]
+  max[max$gene==i,2] <- max(a)
+}
+
+# Fit a Gaussian mixture model (GMM) with 2 components to the maximum similarit
+gmm <- Mclust(max$Max, G = 2, modelNames = "V")  
+summary(gmm)
+data <- data.frame(m = max$Max)
+data$cluster <- gmm$classification 
+
+ggplot(data, aes(x=m, fill=factor(cluster))) +
+  geom_density(alpha=0, adjust=2) +
+  geom_histogram(aes(y = ..density..), bins = 10, fill = "gray", color = "black", alpha = 0.6) +
+  labs(fill="Model")+  geom_vline(xintercept = 0.4, colour = "red", linetype= "dashed")+
+  xlab("Max cosine similarity")+
+  ylab("Distribution density")
+
+```
+
+**UMAP and HDBSCAN Clustering with Cosine Similarity Threshold**
+```{r}
+# Filter DEGs to include only perturbation targets with max cosine similarity > 0.4
+deg <- deg[deg$from %in% max[max$Max>0.4,]$gene,]
+
+# Create a new matrix of logFC values for filtered DEGs
+to_ <- dcast(deg, gene~from, value.var = "logFC")
+to_[is.na(to_)] <- 0
+rownames(to_) <- to_$gene
+
+# Transpose the logFC matrix for UMAP analysis (perturbation targets as rows)
+log2fc_dense <- as.matrix(t(to_[,-1])) 
+
+set.seed(123) 
+# Perform UMAP dimensionality reduction to 20 components using cosine distance
+embedding_2d <- uwot::umap(
+  log2fc_dense,
+  n_components = 20,
+  n_neighbors =2,
+  metric = "cosine",
+  min_dist = 0.01      
+)
+# Plot the first two UMAP dimensions for visualization
+plot(embedding_2d, pch = 16, col = "blue", main = "UMAP with More Clusters")
+# Assign row and column names to the UMAP embedding
+rownames(embedding_2d) <- rownames(log2fc_dense)
+colnames(embedding_2d) <- paste0("Dim_", 1:20)
+
+# Create a data frame for plotting UMAP results
+plot_data <- data.frame(
+  UMAP1 = embedding_2d[, 1],
+  UMAP2 = embedding_2d[, 2],
+  Perturbation = rownames(log2fc_dense))
+
+
+# Perform HDBSCAN clustering on the UMAP embedding
+hdbscan_result <- hdbscan(embedding_2d, minPts = 3)
+table(hdbscan_result$cluster)  
+
+# Assign HDBSCAN cluster labels to the plot data
+plot_data$Cluster <- as.factor(hdbscan_result$cluster)
+# write.csv(plot_data,"cluster.umap.cosine0.4.MDD.gene.csv")
+
+# for(i in 1:4) {
+#   out <- as.data.frame(plot_data[plot_data$Cluster_new ==i,]$Perturbation)
+#   write.table(out, paste0("cluster",i,".gene.txt"), quote=F, row.names = F, col.names = F)
+# }
+
+plot_data[plot_data$Cluster ==3,"Cluster_new"] <- 1
+plot_data[plot_data$Cluster ==4,"Cluster_new"] <- 2
+plot_data[plot_data$Cluster ==2,"Cluster_new"] <- 3
+plot_data[plot_data$Cluster ==1,"Cluster_new"] <- 4
+plot_data$Cluster_new <- factor(plot_data$Cluster_new , levels= 1:4)
+
+
+ggplot(plot_data, aes(x = UMAP1, y = UMAP2, color = Cluster_new)) +
+  geom_point(size = 3) +
+  geom_text_repel(
+    aes(label = Perturbation),
+    size = 5,
+    max.overlaps = 50,
+    show.legend = FALSE 
+  ) +
+  scale_color_discrete(na.value = "gray") +
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank()
+  )
+
+
+```
+
+
+
+```{r}
+sessionInfo()
+```
+
+
+
