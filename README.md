@@ -9,6 +9,7 @@ How to define cells with MOI=1; please refer to the sg_assignment directory for 
 In this directory, we demonstrated the MOI calculation workflow for one of the reactions. Other reactions can be processed similarly. Briefly, since our project adopts a dual-sgRNA mode for KO Perturb-seq, we define MOI=1 cells primarily based on cells defined by sg2, and then remove cells with multiple sg1 assignments. For details, refer to Step 4: "Identify confident MOI=1 cells and assign guides" in the sg_assignment.Rmd within that directory.
 
 (Note: It is important to emphasize that this part of the analysis is largely based on the analytical code from the AAV-Perturb-seq project published in Nature by Santinha, A.J, et al. in 2023. More specifically, refer to https://github.com/plattlab/AAV-Perturb-seq. We strongly recommend familiarizing yourself with their scripts and rationale first.)
+
 After defining MOI=1 cells, all subsequent analyses are built upon this foundation.
 
 Application 1:
