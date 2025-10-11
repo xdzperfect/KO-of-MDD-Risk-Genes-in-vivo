@@ -57,7 +57,7 @@ Upon obtaining the DEG files, the analysis proceeds with the following scripts:
 
 **To reproduce Figure 2g-2h**
 
-The analysis begins by identifying neuronal cell subtypes—specifically excitatory and inhibitory neuronal subpopulations—based on established marker genes (visually detailed in Extended Data Fig. 9a-9b).
+The analysis begins by identifying neuronal cell subtypes—specifically excitatory and inhibitory neuronal subpopulations—based on established marker genes (visually detailed in Extended Data Fig. 6a-6b).
 
 Once neuronal subtypes are annotated, calculate subtype-specific Differential Expressed Genes (DEGs) by comparing MOI=1 cells with MDD risk gene knockouts against control cells.
 
