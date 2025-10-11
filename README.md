@@ -2,7 +2,7 @@
 
 These notebooks contain code reproducing the single-cell analyses from:
 
-> Liansheng Zhang<sup>1</sup>, Xiangrui Kong, Qi Ma<sup>1</sup>, Xinde Hu, Shicheng Cai<sup>1</sup>, Bo Wang, Weijuan Zou, Tao Bai, Meimei Zhang, Liu Fan, Runlin Tan, Ziji Dai, Zhiheng Jia, Tianwen Li, Xingyu Liu, Huatai Xu, Jianrong Wu, Yuanyi Zheng, Zhengzheng Xu, and Haibo Zhou, "Dissecting the genetic risk of major depressive disorder reveals a disease-linked gene cluster via in vivo Perturb-seq", Nature Genetics, 2025
+> Liansheng Zhang<sup>1</sup>, Xiangrui Kong, Qi Ma<sup>1</sup>, Xinde Hu, Shicheng Cai<sup>1</sup>, Bo Wang, Weijuan Zou, Tao Bai, Meimei Zhang, Liu Fan, Runlin Tan, Ziji Dai, Zhiheng Jia, Tianwen Li, Xingyu Liu, Huatai Xu, Jianrong Wu, Yuanyi Zheng, Zhengzheng Xu, and Haibo Zhou, "Linking GWAS risk genes to transcriptional features of major depressive disorder via in vivo Perturb-seq", Nature Genetics, 2025
 
 ## How to define cells with MOI=1
 
@@ -121,6 +121,6 @@ The analysis process for other array data is consistent with that of the pools d
 
 ## Data Availability
 
-Download the R objects from NGDC to use the notebooks: **OMIX010695** (https://ngdc.cncb.ac.cn/omix/preview/msLVjcbG)
+Download the R objects from NGDC to use the notebooks: **OMIX010695** (https://ngdc.cncb.ac.cn/omix/preview/AUGqe6Cm)
 
 As the project has not yet been formally published, the raw data will be automatically released upon publication and can be retrieved from the NGDC database under project **PRJCA031709** (GSA ID: CRA020051).
