@@ -1,4 +1,4 @@
-# KO-of-MDD-Risk-Genes-in-vivo
+# In vivo Perturb-seq for MDD risk genes
 
 These notebooks contain code reproducing the single-cell analyses from:
 
