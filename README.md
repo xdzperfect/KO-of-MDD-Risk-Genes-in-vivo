@@ -16,11 +16,11 @@ After defining MOI=1 cells, all subsequent analyses are built upon this foundati
 
 ## Application 1: Gene co-expression network analysis
 
-**To reproduce Fig. 2a-2c and Extended Data Fig. 7b-7m**
+**To reproduce Fig. 2a-2c and Extended Data Fig. 3b-3m**
 
 This part of the analysis was conducted following the online protocol for hdWGCNA. Specifically, we used only MOI=1 cells as the input data, focusing primarily on neuron cells. The analysis strictly adhered to the parameters and example code provided in the hdWGCNA protocol.
 
-Upon completion of this analysis, the results generated will correspond to Figure 2a, 2b, and Extended Data Fig. 7b-7c. Furthermore, the analysis will yield the enrichR annotation results shown in Extended Data Fig. 7d-7m. These enrichment results for GO pathways can then be visualized using ggplot2.
+Upon completion of this analysis, the results generated will correspond to Figure 2a, 2b, and Extended Data Fig. 3b-3c. Furthermore, the analysis will yield the enrichR annotation results shown in Extended Data Fig. 3d-3m. These enrichment results for GO pathways can then be visualized using ggplot2.
 
 **Implementation details:**
 - Script: `hdWGCNA.analysis.r` located in the `hdWGCNA_MDD_risk_genes_perturbation_with_Module` directory.
@@ -67,7 +67,7 @@ Once neuronal subtypes are annotated, calculate subtype-specific Differential Ex
 
 ## Application 4: Cluster and reduce dimensionality of 44 MDD risk genes' perturbation in neurons
 
-**To reproduce Fig. 3a and Extended Data Fig. 7f**
+**To reproduce Fig. 3a and Extended Data Fig. 4f**
 
 The `perturbation_clustering` directory provides the core scripts:
 
@@ -78,7 +78,7 @@ The `perturbation_clustering` directory provides the core scripts:
 1. **Data Integration:** Compile transcriptional perturbation profiles for all 44 MDD risk gene knockouts.
 2. **Dimensionality Reduction:** Apply UMAP for visualization of perturbation relationships.
 3. **Clustering Analysis:** Identify groups of MDD risk genes with similar transcriptional responses.
-4. **Visualization:** Generate plots for Figure 3a and Extended Data Fig. 7f.
+4. **Visualization:** Generate plots for Figure 3a and Extended Data Fig. 4f.
 
 ## Application 5: Map mouse perturbation data back to MDD patients' single-cell data
 
@@ -96,7 +96,7 @@ This cross-species integration analysis uses scripts in the `Seurat_v5mapQuery_M
 
 ## Application 6: Correlate six MDD risk genes in mouse neurons to MDD patients
 
-**To reproduce Fig. 6e-f and Extended Data Fig. 12b-g, and j**
+**To reproduce Fig. 6e-f and Extended Data Fig. 10b-g, and j**
 
 The correlation analysis is implemented in the `MDD_patients_correlation_analysis` directory:
 
@@ -106,7 +106,7 @@ The correlation analysis is implemented in the `MDD_patients_correlation_analysi
 1. **Focus Selection:** Concentrate on six MDD risk genes (cluster1) based on prior results.
 2. **Human Gene Expression Profiling:** Extract expression profiles of human orthologs from MDD patient data.
 3. **GSEA Enrichment Analysis:** Evaluate enrichment in Oxytocin signaling pathway.
-4. **Visualization:** Generate GSEA plots for Figure 6e-6f and Extended Data Fig. 12b-g, and j.
+4. **Visualization:** Generate GSEA plots for Figure 6e-6f and Extended Data Fig. 10b-g, and j.
 
 ## Special Note
 
