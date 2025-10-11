@@ -16,11 +16,11 @@ After defining MOI=1 cells, all subsequent analyses are built upon this foundati
 
 ## Application 1: Gene co-expression network analysis
 
-**To reproduce Fig. 2a-2c and Extended Data Fig. 6b-6m**
+**To reproduce Fig. 2a-2c and Extended Data Fig. 7b-7m**
 
 This part of the analysis was conducted following the online protocol for hdWGCNA. Specifically, we used only MOI=1 cells as the input data, focusing primarily on neuron cells. The analysis strictly adhered to the parameters and example code provided in the hdWGCNA protocol.
 
-Upon completion of this analysis, the results generated will correspond to Figure 2a, 2b, and Extended Data Fig. 6b-6c. Furthermore, the analysis will yield the enrichR annotation results shown in Extended Data Fig. 6d-6m. These enrichment results for GO pathways can then be visualized using ggplot2.
+Upon completion of this analysis, the results generated will correspond to Figure 2a, 2b, and Extended Data Fig. 7b-7c. Furthermore, the analysis will yield the enrichR annotation results shown in Extended Data Fig. 7d-7m. These enrichment results for GO pathways can then be visualized using ggplot2.
 
 **Implementation details:**
 - Script: `hdWGCNA.analysis.r` located in the `hdWGCNA_MDD_risk_genes_perturbation_with_Module` directory.
