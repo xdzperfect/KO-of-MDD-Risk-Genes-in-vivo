@@ -1,10 +1,10 @@
-KO-of-MDD-Risk-Genes-in-vivo
+#KO-of-MDD-Risk-Genes-in-vivo
 These notebooks contain code reproducing the single-cell analyses from:
 
 Liansheng Zhang1, Xiangrui Kong, Qi Ma1, Xinde Hu, Shicheng Cai1, Bo Wang, Weijuan Zou, Tao Bai, Meimei Zhang, Liu Fan, Runlin Tan, Ziji Dai, Zhiheng Jia, Tianwen Li, Xingyu Liu, Huatai Xu, Jianrong Wu, Yuanyi Zheng, Zhengzheng Xu, and Haibo Zhou, "Dissecting the genetic risk of major depressive disorder reveals a disease-linked gene cluster via in vivo Perturb-seq", Nature Genetics, 2025
 
 We provide info on:
-How to define cells with MOI=1; please refer to the sg_assignment directory for details.
+##How to define cells with MOI=1; please refer to the sg_assignment directory for details.
 
 In this directory, we demonstrated the MOI calculation workflow for one of the reactions. Other reactions can be processed similarly. Briefly, since our project adopts a dual-sgRNA mode for KO Perturb-seq, we define MOI=1 cells primarily based on cells defined by sg2, and then remove cells with multiple sg1 assignments. For details, refer to Step 4: "Identify confident MOI=1 cells and assign guides" in the sg_assignment.Rmd within that directory.
 
@@ -12,8 +12,8 @@ In this directory, we demonstrated the MOI calculation workflow for one of the r
 
 After defining MOI=1 cells, all subsequent analyses are built upon this foundation.
 
-Application 1:
-How to perform gene co-expression network analysis [to reproduce Fig. 2a-2c and Extended Data Fig. 6b-6m]
+###Application 1:
+###How to perform gene co-expression network analysis [to reproduce Fig. 2a-2c and Extended Data Fig. 6b-6m]
 
 This part of the analysis was conducted following the online protocol for hdWGCNA (for more details, see https://smorabit.github.io/hdWGCNA/index.html). Specifically, we used only MOI=1 cells as the input data, focusing primarily on neuron cells. The analysis strictly adhered to the parameters and example code provided in the hdWGCNA protocol.
 
@@ -58,6 +58,7 @@ Alternatively, you can use the demonstration datasets and scripts provided in Ap
 After generating the DEG lists for each neuronal subtype, the final step is to identify and visualize subtype-specific DEG signatures resulting from the genetic knockouts. This is achieved using the script get_specific_DEGs.r located in the directory:
 subcell_specific_DEGs_in_Ex_neuron_and_In_neuron/
 This script processes the DEG outputs to:
+
 •   Compare the knockout-induced DEG profiles across excitatory and inhibitory neuronal subtypes.
 
 •   Identify genes that are differentially expressed in a subtype-specific manner as a consequence of the MDD risk gene knockouts.
