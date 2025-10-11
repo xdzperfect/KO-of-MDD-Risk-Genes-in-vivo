@@ -2,7 +2,7 @@
 
 These notebooks contain code reproducing the single-cell analyses from:
 
-> Liansheng Zhang<sup>1</sup>, Xiangrui Kong, Qi Ma<sup>1</sup>, Xinde Hu, Shicheng Cai<sup>1</sup>, Bo Wang, Weijuan Zou, Tao Bai, Meimei Zhang, Liu Fan, Runlin Tan, Ziji Dai, Zhiheng Jia, Tianwen Li, Xingyu Liu, Huatai Xu, Jianrong Wu, Yuanyi Zheng, Zhengzheng Xu, and Haibo Zhou, "Linking GWAS risk genes to transcriptional features of major depressive disorder via in vivo Perturb-seq", Nature Genetics, 2025
+> Liansheng Zhang<sup>1</sup>, Xiangrui Kong, Qi Ma<sup>1</sup>, Xinde Hu, Shicheng Cai<sup>1</sup>, Bo Wang, Weijuan Zou, Tao Bai, Meimei Zhang, Liu Fan, Runlin Tan, Ziji Dai, Zhiheng Jia, Tianwen Li, Xingyu Liu, Huatai Xu, Jianrong Wu, Yuanyi Zheng, Zhengzheng Xu, and Haibo Zhou, "Linking GWAS risk genes to transcriptional features of major depressive disorder via *in vivo* Perturb-seq", Nature Genetics, 2025
 
 ## How to define cells with MOI=1
 
