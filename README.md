@@ -50,7 +50,7 @@ Upon obtaining the DEG files, the analysis proceeds with the following scripts:
 2. **Pathway Extraction:** Specific pathways of interest are extracted from databases such as KEGG, GO, or Reactome, focusing on pathways relevant to MDD pathophysiology and neuronal function.
 3. **Similarity Calculation:** For each MDD risk gene perturbation, compute enrichment scores or regulation patterns across these specific pathways.
 4. **Correlation Matrix Construction:** Generate a similarity matrix by comparing the pathway regulation profiles of every pair of MDD risk genes.
-5. **Clustering and Visualization:** Apply hierarchical clustering to the correlation matrix and visualize results using clustered heatmaps (Fig. 2d), network graphs (Fig. 2e), and bar plots (Fig. 2f).
+5. **Clustering and Visualization:** Apply hierarchical clustering to the correlation matrix and visualize results using clustered heatmaps (Fig. 2d-2f).
 6. **Validation and Interpretation:** Assess biological coherence through functional enrichment analysis.
 
 ## Application 3: Identify neuron cell subtype-specific DEGs
