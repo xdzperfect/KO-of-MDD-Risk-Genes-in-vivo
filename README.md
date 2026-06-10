@@ -121,6 +121,6 @@ The analysis process for other array data is consistent with that of the pools d
 
 ## Data Availability
 
-Download the R objects from NGDC to use the notebooks: **OMIX010695** (https://ngdc.cncb.ac.cn/omix/release/OMIX010695)
-
+Download the R objects from NGDC to use the notebooks: **OMIX010695** 
+(https://ngdc.cncb.ac.cn/omix/release/OMIX010695)
 As the project has not yet been formally published, the raw data will be automatically released upon publication and can be retrieved from the NGDC database under project **PRJCA031709** (GSA ID: CRA020051).
